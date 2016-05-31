@@ -12,7 +12,7 @@
 /**
  * Front end modules
  */
-$GLOBALS['FE_MOD']['user']['nc_select_messages'] = '\NotificationCenter\Module\MemberCustomizeMessages';
+$GLOBALS['FE_MOD']['user']['nc_manage_messages'] = '\NotificationCenter\Module\MemberCustomizeMessages';
 
 
 /**

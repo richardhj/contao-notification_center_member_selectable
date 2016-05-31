@@ -12,6 +12,6 @@
 /**
  * Front end modules
  */
-$GLOBALS['TL_LANG']['FMD']['nc_select_messages'][0] = 'Nachrichten verwalten';
-$GLOBALS['TL_LANG']['FMD']['nc_select_messages'][1] = 'Benachrichtigungs-Präferenzen festlegen';
+$GLOBALS['TL_LANG']['FMD']['nc_manage_messages'][0] = 'Nachrichten verwalten';
+$GLOBALS['TL_LANG']['FMD']['nc_manage_messages'][1] = 'Der Benutzer kann seine Benachrichtigungs-Präferenzen (Notification Center) festlegen';
 

@@ -11,6 +11,10 @@
 namespace NotificationCenter\Module;
 
 use Haste\Form\Form;
+use NotificationCenter\Gateway\Base;
+use NotificationCenter\Gateway\GatewayInterface;
+use NotificationCenter\MessageDraft\MessageDraftCheckSendInterface;
+use NotificationCenter\MessageDraft\MessageDraftFactoryInterface;
 use NotificationCenter\Model\MemberMessages;
 use NotificationCenter\Model\Message;
 use NotificationCenter\Model\Notification;
@@ -23,6 +27,7 @@ use NotificationCenter\Model\Notification;
  * @property mixed  $nc_member_customizable_notifications
  * @property string $nc_member_customizable_label
  * @property string $nc_member_customizable_inputType
+ * @property string $nc_member_customizable_mandatory
  */
 class MemberCustomizeMessages extends \Module
 {
@@ -135,11 +140,47 @@ class MemberCustomizeMessages extends \Module
 				'label'     => Notification::findByPk($objMessages->pid)->title,
 				'inputType' => $this->nc_member_customizable_inputType,
 				'options'   => $options,
+				'eval'      => array('mandatory' => $this->nc_member_customizable_mandatory),
 				'value'     => (!empty($arrSelected[$k])) ? $arrSelected[$k] : array()
 			));
+
+			// Add a validator
+			// We check whether it is possible to send the message to the recipient by means of the gateway
+			// E.g. a sms message requires a phone number set by the member which is not default
+			$objForm->addValidator('notification_' . $k, function ($varValue, $objWidget, $objForm) use ($k, $arrOptions)
+			{
+				if (empty($varValue))
+				{
+					return $varValue;
+				}
+
+				foreach ($varValue as $msg)
+				{
+					/** @noinspection PhpUndefinedMethodInspection */
+					/** @var Message|\Model $objMessage */
+					$objMessage = Message::findByPk($msg);
+
+					/** @noinspection PhpUndefinedMethodInspection */
+					/** @var GatewayInterface|MessageDraftCheckSendInterface $objGateway */
+					$objGateway = $objMessage->getRelated('gateway')->getGateway();
+
+					if (!$objGateway instanceof MessageDraftCheckSendInterface)
+					{
+						continue;
+					}
+
+					// Throw the error message as exception if the method has not yet
+					if (!$objGateway->canSendDraft($objMessage))
+					{
+						throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $arrOptions[$k][$msg]));
+					}
+				}
+
+				return $varValue;
+			});
 		}
 
-		$objForm->addSubmitFormField('submit', 'Submit form');
+		$objForm->addSubmitFormField('submit', $GLOBALS['TL_LANG']['MSC']['saveSettings']);
 
 		// Process form submit
 		if ($objForm->validate())
@@ -156,19 +197,19 @@ class MemberCustomizeMessages extends \Module
 				list(, $notificationId) = trimsplit('_', $field);
 
 				// Delete
-				foreach (array_diff((array)$arrSelected[$notificationId], (array)$notification) as $item)
+				foreach (array_diff((array)$arrSelected[$notificationId], (array)$notification) as $msg)
 				{
 					/** @noinspection PhpUndefinedMethodInspection */
-					MemberMessages::findByMemberAndMessage(\FrontendUser::getInstance()->id, $item)->delete();
+					MemberMessages::findByMemberAndMessage(\FrontendUser::getInstance()->id, $msg)->delete();
 				}
 
 				// Create
-				foreach (array_diff((array)$notification, (array)$arrSelected[$notificationId]) as $item)
+				foreach (array_diff((array)$notification, (array)$arrSelected[$notificationId]) as $msg)
 				{
 					/** @var MemberMessages|\Model $objMemberMessage */
 					$objMemberMessage = new MemberMessages();
 					$objMemberMessage->member_id = \FrontendUser::getInstance()->id;
-					$objMemberMessage->message_id = $item;
+					$objMemberMessage->message_id = $msg;
 					$objMemberMessage->save();
 				}
 			}

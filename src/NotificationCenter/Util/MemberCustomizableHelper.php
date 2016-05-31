@@ -11,7 +11,6 @@
 namespace NotificationCenter\Util;
 
 
-use MatthiasMullie\Minify\Exception;
 use NotificationCenter\Model\Gateway;
 use NotificationCenter\Model\MemberMessages;
 use NotificationCenter\Model\Message;
@@ -63,7 +62,7 @@ SQL
 	 * @param \DataContainer $dc
 	 *
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function checkMessageMemberCustomizable($varValue, $dc)
 	{
@@ -81,7 +80,7 @@ SQL
 			}
 		}
 
-		throw new Exception($GLOBALS['TL_LANG']['ERR']['messageNotMemberCustomizable']);
+		throw new \Exception($GLOBALS['TL_LANG']['ERR']['messageNotMemberCustomizable']);
 	}
 
 

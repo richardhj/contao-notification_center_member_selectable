@@ -12,7 +12,7 @@
 /**
  * Palettes
  */
-$GLOBALS['TL_DCA']['tl_module']['palettes']['nc_select_messages'] = '{title_legend},name,headline,type;{config_legend},nc_member_customizable_notifications,nc_member_customizable_inputType,nc_member_customizable_label;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['nc_manage_messages'] = '{title_legend},name,headline,type;{config_legend},nc_member_customizable_notifications,nc_member_customizable_inputType,nc_member_customizable_label;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 
 /**
@@ -64,4 +64,16 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['nc_member_customizable_label'] = arra
 		'tl_class'       => 'w50'
 	),
 	'sql'       => "varchar(64) NOT NULL default ''"
+);
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['nc_member_customizable_mandatory'] = array
+(
+	'label'     => &$GLOBALS['TL_LANG']['tl_module']['nc_member_customizable_mandatory'],
+	'exclude'   => true,
+	'inputType' => 'checkbox',
+	'eval'      => array
+	(
+		'tl_class'       => 'w50 m12'
+	),
+	'sql'       => "char(1) NOT NULL default ''"
 );
