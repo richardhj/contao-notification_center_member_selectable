@@ -13,7 +13,7 @@ namespace NotificationCenter\Module;
 use Haste\Form\Form;
 use NotificationCenter\Gateway\Base;
 use NotificationCenter\Gateway\GatewayInterface;
-use NotificationCenter\MessageDraft\MessageDraftCheckSendInterface;
+use NotificationCenter\Gateway\MessageDraftCheckSendInterface;
 use NotificationCenter\MessageDraft\MessageDraftFactoryInterface;
 use NotificationCenter\Model\MemberMessages;
 use NotificationCenter\Model\Message;
