@@ -12,7 +12,7 @@
 /**
  * Palettes
  */
-$GLOBALS['TL_DCA']['tl_module']['palettes']['nc_manage_messages'] = '{title_legend},name,headline,type;{config_legend},nc_member_customizable_notifications,nc_member_customizable_inputType,nc_member_customizable_label;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['nc_manage_messages'] = '{title_legend},name,headline,type;{config_legend},nc_member_customizable_notifications,nc_member_customizable_inputType,nc_member_customizable_label,nc_member_customizable_mandatory;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 
 /**
