@@ -10,7 +10,7 @@
 
 
 /**
- * Front end modules
+ * Fields
  */
-$GLOBALS['TL_LANG']['FMD']['nc_manage_messages'][0] = 'Nachrichten verwalten';
-$GLOBALS['TL_LANG']['FMD']['nc_manage_messages'][1] = 'Der Benutzer kann seine Benachrichtigungs-Präferenzen (Notification Center) festlegen';
+$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable'][0] = 'Is member selectable';
+$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable'][1] = 'The logged in member has the possibility to turn on/off this message. Use the corresponding front end module.';
