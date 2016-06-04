@@ -11,3 +11,9 @@ Create a new front end module "Manage messages" (can be found in the category "u
 
 ### Demonstration front end module
 ![Front end module](https://cloud.githubusercontent.com/assets/1284725/15799664/e29811a8-2a63-11e6-9bbf-e2be8569a09d.png)
+
+## Interface: MessageDraftCheckSendInterface
+The Interface ```MessageDraftCheckSendInterface``` can be added to any notification_center gateway and provides the function ```public function canSendDraft(Message $objMessage)```. This function will be called on saving the front end module (see below) and checks whether this message could be sent to this member.
+
+For exemplary integration see ```richardhj/contao-notification_center_clockworsms```.
+If you provide a notification_center gateway you can integrate the interface ```richardhj/contao-notification_center_checksendinterface```.
