@@ -18,5 +18,5 @@ $GLOBALS['TL_LANG']['MSC']['saveSettings'] = 'Einstellungen speichern';
 /**
  * Errors
  */
-$GLOBALS['TL_LANG']['ERR']['messageNotSelectable'] = 'Die Benachrichtung "%s" kann nicht ausgewählt werden.';
+$GLOBALS['TL_LANG']['ERR']['messageNotSelectable']         = 'Die Benachrichtung "%s" kann nicht ausgewählt werden.';
 $GLOBALS['TL_LANG']['ERR']['messageNotMemberCustomizable'] = 'Diese Nachricht kann nicht von einem Mitglied an-/abgewählt werden, da der Benachrichtung nicht die ID des Mitglieds als Token <em>(##member_id##)</em> übergeben wird.';

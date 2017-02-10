@@ -12,26 +12,27 @@
 /**
  * Palettes
  */
-foreach ($GLOBALS['TL_DCA']['tl_nc_message']['palettes'] as $name => $palette)
-{
-	if (in_array($name, ['__selector__', 'default']))
-	{
-		continue;
-	}
+foreach ($GLOBALS['TL_DCA']['tl_nc_message']['palettes'] as $name => $palette) {
+    if (in_array($name, ['__selector__', 'default'])) {
+        continue;
+    }
 
-	$GLOBALS['TL_DCA']['tl_nc_message']['palettes'][$name] .= ',member_customizable';
+    $GLOBALS['TL_DCA']['tl_nc_message']['palettes'][$name] .= ',member_customizable';
 }
 
 
 /**
  * Fields
  */
-$GLOBALS['TL_DCA']['tl_nc_message']['fields']['member_customizable'] = array
-(
-	'label'         => &$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable'],
-	'exclude'       => true,
-	'inputType'     => 'checkbox',
-	'eval'          => array('tl_class' => 'w50 m12'),
-	'save_callback' => array(array('\NotificationCenter\Util\MemberCustomizableHelper', 'checkMessageMemberCustomizable')),
-	'sql'           => "char(1) NOT NULL default ''"
-);
+$GLOBALS['TL_DCA']['tl_nc_message']['fields']['member_customizable'] = [
+    'label'         => &$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable'],
+    'exclude'       => true,
+    'inputType'     => 'checkbox',
+    'eval'          => [
+        'tl_class' => 'w50 m12',
+    ],
+    'save_callback' => [
+        ['\NotificationCenter\Util\MemberCustomizableHelper', 'checkMessageMemberCustomizable'],
+    ],
+    'sql'           => "char(1) NOT NULL default ''",
+];

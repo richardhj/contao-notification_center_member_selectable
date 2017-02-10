@@ -18,7 +18,8 @@ $GLOBALS['FE_MOD']['user']['nc_manage_messages'] = '\NotificationCenter\Module\M
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['sendNotificationMessage'][] = array('\NotificationCenter\Util\MemberCustomizableHelper', 'skipUnselectedMessages');
+$GLOBALS['TL_HOOKS']['sendNotificationMessage'][] =
+    ['\NotificationCenter\Util\MemberCustomizableHelper', 'skipUnselectedMessages'];
 
 
 /**
