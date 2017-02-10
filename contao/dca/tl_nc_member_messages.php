@@ -18,7 +18,8 @@ $GLOBALS['TL_DCA']['tl_nc_member_messages'] = [
     'config' => [
         'sql' => [
             'keys' => [
-                'id' => 'primary',
+                'id'                   => 'primary',
+                'member_id,message_id' => 'unique',
             ],
         ],
     ],
