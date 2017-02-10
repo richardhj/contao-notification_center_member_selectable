@@ -13,58 +13,66 @@ namespace NotificationCenter\Model;
 
 /**
  * Class MemberMessages
+ *
+ * @property int $member_id
+ * @property int $message_id
+ *
  * @package NotificationCenter\Model
  */
 class MemberMessages extends \Model
 {
 
-	/**
-	 * Name of the current table
-	 * @var string
-	 */
-	protected static $strTable = 'tl_nc_member_messages';
+    /**
+     * Name of the current table
+     *
+     * @var string
+     */
+    protected static $strTable = 'tl_nc_member_messages';
 
 
-	/**
-	 * Find by member
-	 * 
-	 * @param integer $intMemberId
-	 *
-	 * @return static|null
-	 */
-	public static function findByMember($intMemberId)
-	{
-		/** @noinspection PhpUndefinedMethodInspection */
-		return static::findBy('member_id', $intMemberId);
-	}
+    /**
+     * Find by member
+     *
+     * @param integer $memberId
+     *
+     * @return static|null
+     */
+    public static function findByMember($memberId)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return static::findBy('member_id', $memberId);
+    }
 
 
-	/**
-	 * Find by member and message
-	 * 
-	 * @param integer $intMemberId
-	 * @param integer $intMessageId
-	 *
-	 * @return static|null
-	 */
-	public static function findByMemberAndMessage($intMemberId, $intMessageId)
-	{
-		/** @noinspection PhpUndefinedMethodInspection */
-		return static::findBy(array('member_id=? AND message_id=?'), array($intMemberId, $intMessageId));
-	}
+    /**
+     * Find by member and message
+     *
+     * @param integer $memberId
+     * @param integer $messageId
+     *
+     * @return static|null
+     */
+    public static function findByMemberAndMessage($memberId, $messageId)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return static::findBy(['member_id=? AND message_id=?'], [$memberId, $messageId]);
+    }
 
 
-	/**
-	 * Check if the member has selected the message
-	 * 
-	 * @param integer $intMemberId
-	 * @param integer $intMessageId
-	 *
-	 * @return boolean
-	 */
-	public static function memberHasSelected($intMemberId, $intMessageId)
-	{
-		/** @noinspection PhpUndefinedMethodInspection */
-		return static::countBy(array('member_id=? AND message_id=?'), array($intMemberId, $intMessageId)) ? true : false;
-	}
+    /**
+     * Check if the member has selected the message
+     *
+     * @param integer $memberId
+     * @param integer $messageId
+     *
+     * @return boolean
+     */
+    public static function memberHasSelected($memberId, $messageId)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return static::countBy(
+            ['member_id=? AND message_id=?'],
+            [$memberId, $messageId]
+        ) ? true : false;
+    }
 }

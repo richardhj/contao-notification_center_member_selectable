@@ -22,6 +22,7 @@ use NotificationCenter\Model\Notification;
 
 /**
  * Class MemberCustomizeMessages
+ *
  * @package NotificationCenter\Module
  *
  * @property mixed  $nc_member_customizable_notifications
@@ -32,189 +33,194 @@ use NotificationCenter\Model\Notification;
 class MemberCustomizeMessages extends \Module
 {
 
-	/**
-	 * Template
-	 * @var string
-	 */
-	protected $strTemplate = 'mod_nc_member_customize';
+    /**
+     * Template
+     *
+     * @var string
+     */
+    protected $strTemplate = 'mod_nc_member_customize';
 
 
-	/**
-	 * Display a wildcard in the back end
-	 *
-	 * @return string
-	 */
-	public function generate()
-	{
-		if (TL_MODE == 'BE')
-		{
-			/** @var \BackendTemplate|object $objTemplate */
-			$objTemplate = new \BackendTemplate('be_wildcard');
+    /**
+     * Display a wildcard in the back end
+     *
+     * @return string
+     */
+    public function generate()
+    {
+        if (TL_MODE == 'BE') {
+            /** @var \BackendTemplate|object $objTemplate */
+            $objTemplate = new \BackendTemplate('be_wildcard');
 
-			$objTemplate->wildcard = '### ' . utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['newsmenu'][0]) . ' ###';
-			$objTemplate->title = $this->headline;
-			$objTemplate->id = $this->id;
-			$objTemplate->link = $this->name;
-			$objTemplate->href = 'contao/main.php?do=themes&amp;table=tl_module&amp;act=edit&amp;id=' . $this->id;
+            $objTemplate->wildcard = '### '.utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['newsmenu'][0]).' ###';
+            $objTemplate->title    = $this->headline;
+            $objTemplate->id       = $this->id;
+            $objTemplate->link     = $this->name;
+            $objTemplate->href     = 'contao/main.php?do=themes&amp;table=tl_module&amp;act=edit&amp;id='.$this->id;
 
-			return $objTemplate->parse();
-		}
+            return $objTemplate->parse();
+        }
 
-		$this->nc_member_customizable_notifications = deserialize($this->nc_member_customizable_notifications);
+        $this->nc_member_customizable_notifications = deserialize($this->nc_member_customizable_notifications);
 
-		if (!FE_USER_LOGGED_IN || empty($this->nc_member_customizable_notifications))
-		{
-			return '';
-		}
+        if (!FE_USER_LOGGED_IN || empty($this->nc_member_customizable_notifications)) {
+            return '';
+        }
 
-		return parent::generate();
-	}
+        return parent::generate();
+    }
 
 
-	/**
-	 * Generate the module
-	 */
-	protected function compile()
-	{
-		/** @var Message|\Model\Collection $objMessages */
-		/** @noinspection PhpUndefinedMethodInspection */
-		$objMessages = Message::findBy(array('pid IN (' . implode(',', $this->nc_member_customizable_notifications) . ') AND member_customizable<>\'\''), array());
-		$arrOptions = array();
-		$arrSelected = array();
+    /**
+     * Generate the module
+     */
+    protected function compile()
+    {
+        /** @var Message|\Model\Collection $messages */
+        /** @noinspection PhpUndefinedMethodInspection */
+        $messages = Message::findBy(
+            ['pid IN ('.implode(',', $this->nc_member_customizable_notifications).') AND member_customizable<>\'\''],
+            []
+        );
+        $options  = [];
+        $selected = [];
 
-		while ($objMessages->next())
-		{
-			if (MemberMessages::memberHasSelected(\FrontendUser::getInstance()->id, $objMessages->id))
-			{
-				$arrSelected[$objMessages->pid][] = $objMessages->id;
-			}
+        while ($messages->next()) {
+            if (MemberMessages::memberHasSelected(\FrontendUser::getInstance()->id, $messages->id)) {
+                $selected[$messages->pid][] = $messages->id;
+            }
 
-			// Fetch tokens for parsing the option labels
-			$objNotification = $objMessages->getRelated('pid');
-			$objGateway = $objMessages->getRelated('gateway');
+            // Fetch tokens for parsing the option labels
+            $notification = $messages->getRelated('pid');
+            $gateway      = $messages->getRelated('gateway');
 
-			$arrTokens = array_merge
-			(
-			// Add message tokens with corresponding prefix
-				array_combine
-				(
-					array_map(function ($key)
-					{
-						return 'message_' . $key;
-					}, array_keys($objMessages->row())),
-					$objMessages->row()
-				),
-				// Add notification tokens with corresponding prefix
-				array_combine
-				(
-					array_map(function ($key)
-					{
-						return 'notification_' . $key;
-					}, array_keys($objNotification->row())),
-					$objNotification->row()
-				),
-				// Add gateway tokens with corresponding prefix
-				array_combine
-				(
-					array_map(function ($key)
-					{
-						return 'gateway_' . $key;
-					}, array_keys($objGateway->row())),
-					$objGateway->row()
-				)
-			);
+            $tokens = array_merge(
+            // Add message tokens with corresponding prefix
+                array_combine(
+                    array_map(
+                        function ($key) {
+                            return 'message_'.$key;
+                        },
+                        array_keys($messages->row())
+                    ),
+                    $messages->row()
+                ),
+                // Add notification tokens with corresponding prefix
+                array_combine(
+                    array_map(
+                        function ($key) {
+                            return 'notification_'.$key;
+                        },
+                        array_keys($notification->row())
+                    ),
+                    $notification->row()
+                ),
+                // Add gateway tokens with corresponding prefix
+                array_combine(
+                    array_map(
+                        function ($key) {
+                            return 'gateway_'.$key;
+                        },
+                        array_keys($gateway->row())
+                    ),
+                    $gateway->row()
+                )
+            );
 
-			$arrOptions[$objMessages->pid][$objMessages->id] = \StringUtil::parseSimpleTokens($this->nc_member_customizable_label ?: '##message_title## (##gateway_title##)', $arrTokens);
-		}
+            $options[$messages->pid][$messages->id] = \StringUtil::parseSimpleTokens(
+                $this->nc_member_customizable_label ?: '##message_title## (##gateway_title##)',
+                $tokens
+            );
+        }
 
-		$objForm = new Form('tl_select_notifications', 'POST', function ($objHaste)
-		{
-			/** @noinspection PhpUndefinedMethodInspection */
-			return \Input::post('FORM_SUBMIT') === $objHaste->getFormId();
-		});
+        $form = new Form(
+            'tl_select_notifications', 'POST', function ($haste) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $haste->getFormId() === \Input::post('FORM_SUBMIT');
+        }
+        );
 
-		foreach ($arrOptions as $k => $options)
-		{
-			/** @noinspection PhpUndefinedMethodInspection */
-			$objForm->addFormField('notification_' . $k, array(
-				'label'     => Notification::findByPk($objMessages->pid)->title,
-				'inputType' => $this->nc_member_customizable_inputType,
-				'options'   => $options,
-				'eval'      => array('mandatory' => $this->nc_member_customizable_mandatory),
-				'value'     => (!empty($arrSelected[$k])) ? $arrSelected[$k] : array()
-			));
+        foreach ($options as $k => $messagesOptions) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $form->addFormField(
+                'notification_'.$k,
+                [
+                    'label'     => Notification::findByPk($messages->pid)->title,
+                    'inputType' => $this->nc_member_customizable_inputType,
+                    'options'   => $messagesOptions,
+                    'eval'      => [
+                        'mandatory' => $this->nc_member_customizable_mandatory,
+                    ],
+                    'value'     => (!empty($selected[$k])) ? $selected[$k] : [],
+                ]
+            );
 
-			// Add a validator
-			// We check whether it is possible to send the message to the recipient by means of the gateway
-			// E.g. a sms message requires a phone number set by the member which is not default
-			$objForm->addValidator('notification_' . $k, function ($varValue, $objWidget, $objForm) use ($k, $arrOptions)
-			{
-				if (empty($varValue))
-				{
-					return $varValue;
-				}
+            // Add a validator
+            // We check whether it is possible to send the message to the recipient by means of the gateway
+            // E.g. a sms message requires a phone number set by the member which is not default
+            $form->addValidator(
+                'notification_'.$k,
+                function ($value) use ($k, $options) {
+                    if (empty($value)) {
+                        return $value;
+                    }
 
-				foreach ($varValue as $msg)
-				{
-					/** @noinspection PhpUndefinedMethodInspection */
-					/** @var Message|\Model $objMessage */
-					$objMessage = Message::findByPk($msg);
+                    foreach ($value as $msg) {
+                        /** @noinspection PhpUndefinedMethodInspection */
+                        /** @var Message|\Model $message */
+                        $message = Message::findByPk($msg);
 
-					/** @noinspection PhpUndefinedMethodInspection */
-					/** @var GatewayInterface|MessageDraftCheckSendInterface $objGateway */
-					$objGateway = $objMessage->getRelated('gateway')->getGateway();
+                        /** @noinspection PhpUndefinedMethodInspection */
+                        /** @var GatewayInterface|MessageDraftCheckSendInterface $gateway */
+                        $gateway = $message->getRelated('gateway')->getGateway();
 
-					if (!$objGateway instanceof MessageDraftCheckSendInterface)
-					{
-						continue;
-					}
+                        if (!$gateway instanceof MessageDraftCheckSendInterface) {
+                            continue;
+                        }
 
-					// Throw the error message as exception if the method has not yet
-					if (!$objGateway->canSendDraft($objMessage))
-					{
-						throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $arrOptions[$k][$msg]));
-					}
-				}
+                        // Throw the error message as exception if the method has not yet
+                        if (!$gateway->canSendDraft($message)) {
+                            throw new \Exception(
+                                sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $options[$k][$msg])
+                            );
+                        }
+                    }
 
-				return $varValue;
-			});
-		}
+                    return $value;
+                }
+            );
+        }
 
-		$objForm->addSubmitFormField('submit', $GLOBALS['TL_LANG']['MSC']['saveSettings']);
+        $form->addSubmitFormField('submit', $GLOBALS['TL_LANG']['MSC']['saveSettings']);
 
-		// Process form submit
-		if ($objForm->validate())
-		{
-			$arrData = $objForm->fetchAll();
+        // Process form submit
+        if ($form->validate()) {
+            $data = $form->fetchAll();
 
-			foreach ($arrData as $field => $notification)
-			{
-				if (strpos($field, 'notification_') !== 0)
-				{
-					continue;
-				}
+            foreach ($data as $field => $notification) {
+                if (0 !== strpos($field, 'notification_')) {
+                    continue;
+                }
 
-				list(, $notificationId) = trimsplit('_', $field);
+                list(, $notificationId) = trimsplit('_', $field);
 
-				// Delete
-				foreach (array_diff((array)$arrSelected[$notificationId], (array)$notification) as $msg)
-				{
-					/** @noinspection PhpUndefinedMethodInspection */
-					MemberMessages::findByMemberAndMessage(\FrontendUser::getInstance()->id, $msg)->delete();
-				}
+                // Delete
+                foreach (array_diff((array)$selected[$notificationId], (array)$notification) as $msg) {
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    MemberMessages::findByMemberAndMessage(\FrontendUser::getInstance()->id, $msg)->delete();
+                }
 
-				// Create
-				foreach (array_diff((array)$notification, (array)$arrSelected[$notificationId]) as $msg)
-				{
-					/** @var MemberMessages|\Model $objMemberMessage */
-					$objMemberMessage = new MemberMessages();
-					$objMemberMessage->member_id = \FrontendUser::getInstance()->id;
-					$objMemberMessage->message_id = $msg;
-					$objMemberMessage->save();
-				}
-			}
-		}
+                // Create
+                foreach (array_diff((array)$notification, (array)$selected[$notificationId]) as $msg) {
+                    /** @var MemberMessages|\Model $memberMessage */
+                    $memberMessage             = new MemberMessages();
+                    $memberMessage->member_id  = \FrontendUser::getInstance()->id;
+                    $memberMessage->message_id = $msg;
+                    $memberMessage->save();
+                }
+            }
+        }
 
-		$this->Template->form = $objForm->generate();
-	}
+        $this->Template->form = $form->generate();
+    }
 }
