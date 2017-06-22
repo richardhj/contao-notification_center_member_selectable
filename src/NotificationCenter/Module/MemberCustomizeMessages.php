@@ -140,18 +140,18 @@ class MemberCustomizeMessages extends \Module
         }
         );
 
-        foreach ($options as $k => $messagesOptions) {
+        foreach ($options as $nId => $messagesOptions) {
             /** @noinspection PhpUndefinedMethodInspection */
             $form->addFormField(
-                'notification_'.$k,
+                'notification_'.$nId,
                 [
-                    'label'     => Notification::findByPk($messages->pid)->title,
+                    'label'     => Notification::findByPk($nId)->title,
                     'inputType' => $this->nc_member_customizable_inputType,
                     'options'   => $messagesOptions,
                     'eval'      => [
                         'mandatory' => $this->nc_member_customizable_mandatory,
                     ],
-                    'value'     => (!empty($selected[$k])) ? $selected[$k] : [],
+                    'value'     => (!empty($selected[$nId])) ? $selected[$nId] : [],
                 ]
             );
 
@@ -159,8 +159,8 @@ class MemberCustomizeMessages extends \Module
             // We check whether it is possible to send the message to the recipient by means of the gateway
             // E.g. a sms message requires a phone number set by the member which is not default
             $form->addValidator(
-                'notification_'.$k,
-                function ($value) use ($k, $options) {
+                'notification_'.$nId,
+                function ($value) use ($nId, $options) {
                     if (empty($value)) {
                         return $value;
                     }
@@ -181,7 +181,7 @@ class MemberCustomizeMessages extends \Module
                         // Throw the error message as exception if the method has not yet
                         if (!$gateway->canSendDraft($message)) {
                             throw new \Exception(
-                                sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $options[$k][$msg])
+                                sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $options[$nId][$msg])
                             );
                         }
                     }
