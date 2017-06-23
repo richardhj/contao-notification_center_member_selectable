@@ -19,6 +19,13 @@ foreach ($GLOBALS['TL_DCA']['tl_nc_message']['palettes'] as $name => $palette) {
 
     $GLOBALS['TL_DCA']['tl_nc_message']['palettes'][$name] .= ',member_customizable';
 }
+$GLOBALS['TL_DCA']['tl_nc_message']['palettes']['__selector__'][] = 'member_customizable';
+
+
+/**
+ * SubPalettes
+ */
+$GLOBALS['TL_DCA']['tl_nc_message']['subpalettes']['member_customizable'] = 'member_customizable_default_behavior';
 
 
 /**
@@ -29,10 +36,27 @@ $GLOBALS['TL_DCA']['tl_nc_message']['fields']['member_customizable'] = [
     'exclude'       => true,
     'inputType'     => 'checkbox',
     'eval'          => [
-        'tl_class' => 'w50 m12',
+        'submitOnChange' => true,
+        'tl_class'       => 'w50 m12',
     ],
     'save_callback' => [
         ['\NotificationCenter\Util\MemberCustomizableHelper', 'checkMessageMemberCustomizable'],
     ],
     'sql'           => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_nc_message']['fields']['member_customizable_default_behavior'] = [
+    'label'     => &$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable_default_behavior'],
+    'exclude'   => true,
+    'inputType' => 'select',
+    'options'   => [
+        'opt-out',
+        'opt-in',
+    ],
+    'reference' => &$GLOBALS['TL_LANG']['tl_nc_message']['member_customizable_default_behavior_options'],
+    'eval'      => [
+        'mandatory' => true,
+        'tl_class'  => 'w50',
+    ],
+    'sql'       => "varchar(64) NOT NULL default ''",
 ];

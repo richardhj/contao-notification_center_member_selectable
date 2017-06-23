@@ -108,28 +108,8 @@ SQL
             return true;
         }
 
-        // User did not customize their messages for this notification
-        if (\Database::getInstance()
-                ->prepare(
-                    <<<SQL
-SELECT n.id
-FROM tl_nc_member_messages mm
-INNER JOIN tl_nc_message m
-  ON mm.message_id = m.id
-INNER JOIN tl_nc_notification n
-  ON m.pid = n.id
-WHERE mm.member_id=?
-  AND m.member_customizable<>''
-SQL
-                )
-                ->execute($memberId)
-                ->numRows < 1
-        ) {
-            return true;
-        }
-
         // Message is member customizable but was not selected by the member
-        if ($message->member_customizable && !MemberMessages::memberHasSelected($memberId, $message->id)) {
+        if ($message->member_customizable && !MemberMessages::shouldSendMessage($memberId, $message->id)) {
             return false;
         }
 

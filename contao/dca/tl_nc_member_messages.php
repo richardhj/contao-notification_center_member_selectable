@@ -35,5 +35,8 @@ $GLOBALS['TL_DCA']['tl_nc_member_messages'] = [
         'message_id' => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
+        'send'       => [
+            'sql' => "char(1) NOT NULL default ''",
+        ],
     ],
 ];

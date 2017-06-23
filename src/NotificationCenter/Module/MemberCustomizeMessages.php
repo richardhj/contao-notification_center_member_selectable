@@ -82,11 +82,12 @@ class MemberCustomizeMessages extends \Module
             ['pid IN ('.implode(',', $this->nc_member_customizable_notifications).') AND member_customizable<>\'\''],
             []
         );
+        $memberId = \FrontendUser::getInstance()->id;
         $options  = [];
         $selected = [];
 
         while ($messages->next()) {
-            if (MemberMessages::memberHasSelected(\FrontendUser::getInstance()->id, $messages->id)) {
+            if (MemberMessages::shouldSendMessage($memberId, $messages->id)) {
                 $selected[$messages->pid][] = $messages->id;
             }
 
@@ -197,30 +198,42 @@ class MemberCustomizeMessages extends \Module
         if ($form->validate()) {
             $data = $form->fetchAll();
 
-            foreach ($data as $field => $notification) {
+            foreach ($data as $field => $notificationMessages) {
                 if (0 !== strpos($field, 'notification_')) {
                     continue;
                 }
 
                 list(, $notificationId) = trimsplit('_', $field);
 
-                // Delete
-                foreach (array_diff((array)$selected[$notificationId], (array)$notification) as $msg) {
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    MemberMessages::findByMemberAndMessage(\FrontendUser::getInstance()->id, $msg)->delete();
-                }
+                $allNotificationMessages = array_keys($options[$notificationId]);
 
-                // Create
-                foreach (array_diff((array)$notification, (array)$selected[$notificationId]) as $msg) {
-                    /** @var MemberMessages|\Model $memberMessage */
-                    $memberMessage             = new MemberMessages();
-                    $memberMessage->member_id  = \FrontendUser::getInstance()->id;
-                    $memberMessage->message_id = $msg;
-                    $memberMessage->save();
+                // Should send
+                foreach ($notificationMessages as $msg) {
+                    $this->persistShouldSendMessage($memberId, $msg, true);
+                }
+                // Should not send
+                foreach (array_diff((array) $allNotificationMessages, (array) $notificationMessages) as $msg) {
+                    $this->persistShouldSendMessage($memberId, $msg, false);
                 }
             }
         }
 
         $this->Template->form = $form->generate();
+    }
+
+    /**
+     * @param int  $memberId
+     * @param int  $messageId
+     * @param bool $send
+     */
+    private function persistShouldSendMessage($memberId, $messageId, $send)
+    {
+        \Database::getInstance()
+            ->prepare(
+                "INSERT INTO tl_nc_member_messages (member_id, message_id, send) " .
+                " VALUES (?, ?, ?)" .
+                " ON DUPLICATE KEY UPDATE send=?"
+            )
+            ->execute($memberId, $messageId, $send, $send);
     }
 }
