@@ -14,10 +14,11 @@
 namespace Richardhj\NotificationCenterMembersChoiceBundle\Util;
 
 
-use NotificationCenter\Model\Gateway;
-use NotificationCenter\Model\MemberMessages;
-use NotificationCenter\Model\Message;
+use Contao\System;
+use Doctrine\DBAL\Connection;
 use NotificationCenter\Model\Notification;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 
 /**
@@ -27,6 +28,22 @@ use NotificationCenter\Model\Notification;
  */
 class MemberCustomizableHelper
 {
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * MemberCustomizableHelper constructor.
+     *
+     * @throws ServiceNotFoundException
+     * @throws ServiceCircularReferenceException
+     */
+    public function __construct()
+    {
+        $this->connection = System::getContainer()->get('database_connection');
+    }
 
     /**
      * Get all notifications with member customizable messages
@@ -39,26 +56,20 @@ class MemberCustomizableHelper
     {
         $options = [];
 
-        $notifications = \Database::getInstance()
-            ->query(
-                <<<SQL
-                SELECT n.id, n.title
-FROM tl_nc_notification n
-INNER JOIN tl_nc_message m
-  ON n.id=m.pid
-INNER JOIN tl_nc_gateway g
-  ON g.id=m.gateway
-WHERE m.member_customizable<>''
-SQL
-            );
+        $statement = $this->connection->createQueryBuilder()
+            ->select('n.id', 'n.title')
+            ->from('tl_nc_notification', 'n')
+            ->innerJoin('n', 'tl_nc_message', 'm', 'n.id=m.pid')
+            ->innerJoin('m', 'tl_nc_gateway', 'g', 'g.id=m.gateway')
+            ->where("m.member_customizable<>''")
+            ->execute();
 
-        while ($notifications->next()) {
-            $options[$notifications->id] = $notifications->title;
+        while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
+            $options[$row->id] = $row->title;
         }
 
         return $options;
     }
-
 
     /**
      * Check if the message can be member customizable
