@@ -1,11 +1,14 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
 
 

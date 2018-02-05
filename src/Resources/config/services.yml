@@ -1,0 +1,5 @@
+services:
+    richardhj.notification_center_members_choice.hook_listener.send_notification_message:
+        class: Richardhj\NotificationCenterMembersChoiceBundle\HookListener\SendNotificationMessageListener
+        tags:
+            - { name: 'contao.hook', hook: 'sendNotificationMessage' }

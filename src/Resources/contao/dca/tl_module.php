@@ -1,12 +1,17 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
+
+use Richardhj\NotificationCenterMembersChoiceBundle\Util\MemberCustomizableHelper;
 
 
 /**
@@ -23,12 +28,12 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['nc_member_customizable_notifications'
     'label'            => &$GLOBALS['TL_LANG']['tl_module']['nc_member_customizable_notifications'],
     'exclude'          => true,
     'inputType'        => 'checkboxWizard',
-    'options_callback' => ['\NotificationCenter\Util\MemberCustomizableHelper', 'getMessages'],
+    'options_callback' => [MemberCustomizableHelper::class, 'getMessages'],
     'eval'             => [
         'multiple'  => true,
         'mandatory' => true,
     ],
-    'sql'              => "text NULL",
+    'sql'              => 'text NULL',
 ];
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['nc_member_customizable_inputType'] = [

@@ -1,23 +1,26 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
 
-namespace NotificationCenter\Module;
+namespace Richardhj\NotificationCenterMembersChoiceBundle\Module;
 
+use Contao\FrontendUser;
+use Contao\Input;
 use Haste\Form\Form;
-use NotificationCenter\Gateway\Base;
 use NotificationCenter\Gateway\GatewayInterface;
 use NotificationCenter\Gateway\MessageDraftCheckSendInterface;
-use NotificationCenter\MessageDraft\MessageDraftFactoryInterface;
-use NotificationCenter\Model\MemberMessages;
 use NotificationCenter\Model\Message;
 use NotificationCenter\Model\Notification;
+use Richardhj\NotificationCenterMembersChoiceBundle\Model\MemberMessages;
 
 
 /**
@@ -40,7 +43,6 @@ class MemberCustomizeMessages extends \Module
      */
     protected $strTemplate = 'mod_nc_member_customize';
 
-
     /**
      * Display a wildcard in the back end
      *
@@ -48,7 +50,7 @@ class MemberCustomizeMessages extends \Module
      */
     public function generate()
     {
-        if (TL_MODE == 'BE') {
+        if ('BE' === TL_MODE) {
             /** @var \BackendTemplate|object $objTemplate */
             $objTemplate = new \BackendTemplate('be_wildcard');
 
@@ -70,9 +72,13 @@ class MemberCustomizeMessages extends \Module
         return parent::generate();
     }
 
-
     /**
      * Generate the module
+     *
+     * @throws \LogicException When a gateway occurs errors sending a message. Is thrown within the validator and will
+     *                         be catched and shown as error message.
+     * @throws \RuntimeException When message is not selectable. Is thrown within the validator and will be catched and
+     *                           shown as error message.
      */
     protected function compile()
     {
@@ -82,7 +88,7 @@ class MemberCustomizeMessages extends \Module
             ['pid IN ('.implode(',', $this->nc_member_customizable_notifications).') AND member_customizable<>\'\''],
             []
         );
-        $memberId = \FrontendUser::getInstance()->id;
+        $memberId = FrontendUser::getInstance()->id;
         $options  = [];
         $selected = [];
 
@@ -128,16 +134,20 @@ class MemberCustomizeMessages extends \Module
                 )
             );
 
-            $options[$messages->pid][$messages->id] = \StringUtil::parseSimpleTokens(
-                $this->nc_member_customizable_label ?: '##message_title## (##gateway_title##)',
-                $tokens
-            );
+            try {
+                $options[$messages->pid][$messages->id] = \StringUtil::parseSimpleTokens(
+                    $this->nc_member_customizable_label ?: '##message_title## (##gateway_title##)',
+                    $tokens
+                );
+            } catch (\Exception $e) {
+                $options[$messages->pid][$messages->id] = $this->nc_member_customizable_label;
+            }
         }
 
         $form = new Form(
             'tl_select_notifications', 'POST', function ($haste) {
             /** @noinspection PhpUndefinedMethodInspection */
-            return $haste->getFormId() === \Input::post('FORM_SUBMIT');
+            return $haste->getFormId() === Input::post('FORM_SUBMIT');
         }
         );
 
@@ -152,7 +162,7 @@ class MemberCustomizeMessages extends \Module
                     'eval'      => [
                         'mandatory' => $this->nc_member_customizable_mandatory,
                     ],
-                    'value'     => (!empty($selected[$nId])) ? $selected[$nId] : [],
+                    'value'     => !empty($selected[$nId]) ? $selected[$nId] : [],
                 ]
             );
 
@@ -181,7 +191,7 @@ class MemberCustomizeMessages extends \Module
 
                         // Throw the error message as exception if the method has not yet
                         if (!$gateway->canSendDraft($message)) {
-                            throw new \Exception(
+                            throw new \RuntimeException(
                                 sprintf($GLOBALS['TL_LANG']['ERR']['messageNotSelectable'], $options[$nId][$msg])
                             );
                         }
@@ -208,11 +218,11 @@ class MemberCustomizeMessages extends \Module
                 $allNotificationMessages = array_keys($options[$notificationId]);
 
                 // Should send
-                foreach ($notificationMessages as $msg) {
+                foreach ((array)$notificationMessages as $msg) {
                     $this->persistShouldSendMessage($memberId, $msg, true);
                 }
                 // Should not send
-                foreach (array_diff((array) $allNotificationMessages, (array) $notificationMessages) as $msg) {
+                foreach (array_diff((array)$allNotificationMessages, (array)$notificationMessages) as $msg) {
                     $this->persistShouldSendMessage($memberId, $msg, false);
                 }
             }
@@ -230,9 +240,9 @@ class MemberCustomizeMessages extends \Module
     {
         \Database::getInstance()
             ->prepare(
-                "INSERT INTO tl_nc_member_messages (member_id, message_id, send) " .
-                " VALUES (?, ?, ?)" .
-                " ON DUPLICATE KEY UPDATE send=?"
+                'INSERT INTO tl_nc_member_messages (member_id, message_id, send) '.
+                ' VALUES (?, ?, ?)'.
+                ' ON DUPLICATE KEY UPDATE send=?'
             )
             ->execute($memberId, $messageId, $send, $send);
     }

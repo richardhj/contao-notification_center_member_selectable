@@ -1,19 +1,24 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
+
+use Richardhj\NotificationCenterMembersChoiceBundle\Util\MemberCustomizableHelper;
 
 
 /**
  * Palettes
  */
-foreach ($GLOBALS['TL_DCA']['tl_nc_message']['palettes'] as $name => $palette) {
-    if (in_array($name, ['__selector__', 'default'])) {
+foreach ((array)$GLOBALS['TL_DCA']['tl_nc_message']['palettes'] as $name => $palette) {
+    if (in_array($name, ['__selector__', 'default'], true)) {
         continue;
     }
 
@@ -40,7 +45,7 @@ $GLOBALS['TL_DCA']['tl_nc_message']['fields']['member_customizable'] = [
         'tl_class'       => 'w50 m12',
     ],
     'save_callback' => [
-        ['\NotificationCenter\Util\MemberCustomizableHelper', 'checkMessageMemberCustomizable'],
+        [MemberCustomizableHelper::class, 'checkMessageMemberCustomizable'],
     ],
     'sql'           => "char(1) NOT NULL default ''",
 ];

@@ -1,16 +1,20 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
 
-namespace NotificationCenter\Model;
+namespace Richardhj\NotificationCenterMembersChoiceBundle\Model;
 
 use Contao\Model;
+use NotificationCenter\Model\Message;
 
 
 /**
@@ -32,7 +36,6 @@ class MemberMessages extends Model
      */
     protected static $strTable = 'tl_nc_member_messages';
 
-
     /**
      * Find by member
      *
@@ -42,10 +45,8 @@ class MemberMessages extends Model
      */
     public static function findByMember($memberId)
     {
-        /** @noinspection PhpUndefinedMethodInspection */
         return static::findBy('member_id', $memberId);
     }
-
 
     /**
      * Find by member and message
@@ -60,7 +61,6 @@ class MemberMessages extends Model
         return static::findOneBy(['member_id=? AND message_id=?'], [$memberId, $messageId]);
     }
 
-
     /**
      * Check if the member chose to receive this message
      *
@@ -73,18 +73,15 @@ class MemberMessages extends Model
     {
         $model = static::findByMemberAndMessage($memberId, $messageId);
         if (null !== $model) {
-            return (bool) $model->send;
+            return (bool)$model->send;
         }
 
-        /** @var Message|Model $message */
         /** @noinspection PhpUndefinedMethodInspection */
         $message = Message::findByPk($messageId);
         if (null === $message) {
             return null;
         }
 
-        return ('opt-out' === $message->member_customizable_default_behavior)
-            ? true
-            : false;
+        return 'opt-out' === $message->member_customizable_default_behavior;
     }
 }

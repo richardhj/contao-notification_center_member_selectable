@@ -1,14 +1,17 @@
 <?php
+
 /**
- * Member selectable messages for the notification_center extension for Contao Open Source CMS
+ * This file is part of richardhj/contao-notification_center_member_selectable.
  *
- * Copyright (c) 2016 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
- * @package NotificationCenterMemberSelectable
- * @author  Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @package   richardhj/contao-notification_center_member_selectable
+ * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2018 Richard Henkenjohann
+ * @license   https://github.com/richardhj/contao-notification_center_member_selectable/blob/master/LICENSE LGPL-3.0
  */
 
-namespace NotificationCenter\Util;
+namespace Richardhj\NotificationCenterMembersChoiceBundle\Util;
 
 
 use NotificationCenter\Model\Gateway;
@@ -66,7 +69,7 @@ SQL
      * @param \DataContainer $dc
      *
      * @return mixed
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function checkMessageMemberCustomizable($value, $dc)
     {
@@ -76,43 +79,15 @@ SQL
 
         // Check the allowed tokens corresponding for this notification type
         foreach (
-            $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE'][$notificationType][$notification->type]
+            (array)$GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE'][$notificationType][$notification->type]
             as $field => $tokens
         ) {
             // We have to check whether the member id will be passed to the message as token
-            if (in_array('member_id', $tokens) || in_array('member_*', $tokens)) {
+            if (\in_array('member_id', $tokens, true) || \in_array('member_*', $tokens, true)) {
                 return $value;
             }
         }
 
-        throw new \Exception($GLOBALS['TL_LANG']['ERR']['messageNotMemberCustomizable']);
-    }
-
-
-    /**
-     * Skip messages that are member customizable and were not selected by the member
-     *
-     * @param Message|\Model $message
-     * @param array          $tokens
-     *
-     * @return bool
-     *
-     * @internal param string $language
-     * @internal param \Model|Gateway $gateway
-     */
-    public function skipUnselectedMessages($message, $tokens)
-    {
-        $memberId = $tokens['member_id'];
-
-        if (!$memberId) {
-            return true;
-        }
-
-        // Message is member customizable but was not selected by the member
-        if ($message->member_customizable && !MemberMessages::shouldSendMessage($memberId, $message->id)) {
-            return false;
-        }
-
-        return true;
+        throw new \RuntimeException($GLOBALS['TL_LANG']['ERR']['messageNotMemberCustomizable']);
     }
 }
