@@ -27,7 +27,7 @@
     "codefog/contao-haste": "~4.11"
   },
   "autoload": {
-    "psr-0": {
+    "psr-4": {
       "Richardhj\\NotificationCenterMembersChoiceBundle\\": "src/"
     }
   },
