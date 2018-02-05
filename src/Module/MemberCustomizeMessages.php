@@ -176,7 +176,7 @@ class MemberCustomizeMessages extends \Module
                         return $value;
                     }
 
-                    foreach ($value as $msg) {
+                    foreach ((array)$value as $msg) {
                         /** @noinspection PhpUndefinedMethodInspection */
                         /** @var Message|\Model $message */
                         $message = Message::findByPk($msg);
