@@ -20,6 +20,7 @@ use NotificationCenter\Gateway\GatewayInterface;
 use NotificationCenter\Gateway\MessageDraftCheckSendInterface;
 use NotificationCenter\Model\Message;
 use NotificationCenter\Model\Notification;
+use Patchwork\Utf8;
 use Richardhj\NotificationCenterMembersChoiceBundle\Model\MemberMessages;
 
 
@@ -54,7 +55,7 @@ class MemberCustomizeMessages extends \Module
             /** @var \BackendTemplate|object $objTemplate */
             $objTemplate = new \BackendTemplate('be_wildcard');
 
-            $objTemplate->wildcard = '### '.utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['newsmenu'][0]).' ###';
+            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['newsmenu'][0]).' ###';
             $objTemplate->title    = $this->headline;
             $objTemplate->id       = $this->id;
             $objTemplate->link     = $this->name;
@@ -92,7 +93,7 @@ class MemberCustomizeMessages extends \Module
         $options  = [];
         $selected = [];
 
-        while ($messages->next()) {
+        while (null !== $messages && $messages->next()) {
             if (MemberMessages::shouldSendMessage($memberId, $messages->id)) {
                 $selected[$messages->pid][] = $messages->id;
             }
@@ -206,9 +207,7 @@ class MemberCustomizeMessages extends \Module
 
         // Process form submit
         if ($form->validate()) {
-            $data = $form->fetchAll();
-
-            foreach ($data as $field => $notificationMessages) {
+            foreach ($form->fetchAll() as $field => $notificationMessages) {
                 if (0 !== strpos($field, 'notification_')) {
                     continue;
                 }
