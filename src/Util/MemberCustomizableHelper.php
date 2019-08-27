@@ -84,6 +84,10 @@ class MemberCustomizableHelper
      */
     public function checkMessageMemberCustomizable($value, $dc)
     {
+        if (!$value) {
+            return $value;
+        }
+
         /** @noinspection PhpUndefinedMethodInspection */
         $notification     = Notification::findByPk($dc->activeRecord->pid);
         $notificationType = Notification::findGroupForType($notification->type);
